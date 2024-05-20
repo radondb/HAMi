@@ -30,6 +30,10 @@ var (
 )
 
 func InitDCUDevice() *DCUDevices {
+	util.InRequestDevices[HygonDCUDevice] = "hami.io/vgpu-devices-to-allocate"
+	util.SupportDevices[HygonDCUDevice] = "hami.io/vgpu-devices-allocated"
+	util.HandshakeAnnos[HygonDCUDevice] = HandshakeAnnos
+
 	return &DCUDevices{}
 }
 
@@ -165,5 +169,14 @@ func (dev *DCUDevices) GenerateResourceRequests(ctr *corev1.Container) util.Cont
 }
 
 func (dev *DCUDevices) PatchAnnotations(annoinput *map[string]string, pd util.PodDevices) map[string]string {
+	devlist, ok := pd[HygonDCUDevice]
+	if ok && len(devlist) > 0 {
+		deviceStr := util.EncodePodSingleDevice(devlist)
+		(*annoinput)[util.InRequestDevices[HygonDCUDevice]] = deviceStr
+		(*annoinput)[util.SupportDevices[HygonDCUDevice]] = deviceStr
+		klog.V(5).Infof("pod add notation key [%s], values is [%s]", util.InRequestDevices[HygonDCUDevice], deviceStr)
+		klog.V(5).Infof("pod add notation key [%s], values is [%s]", util.SupportDevices[HygonDCUDevice], deviceStr)
+	}
+
 	return *annoinput
 }

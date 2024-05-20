@@ -35,8 +35,15 @@ spec:
         - name: dcu-device-plugin-ctr
           image: {{ .Values.devicePlugin.hygonimage }}
           imagePullPolicy: {{ .Values.devicePlugin.imagePullPolicy | quote }}
-          command: ["/hygon","-logtostderr=true","-stderrthreshold=INFO","-v=5"]
+            #command: ["/hygon","-logtostderr=true","-stderrthreshold=INFO","-v=5"]
+          command: ["/bin/bash","-c"]
+          args:
+          - source /opt/hygondriver/env.sh && hygon-device-plugin -logtostderr=true -stderrthreshold=INFO -v=5 -dcu-name={{ .Values.dcuResourceName }}
           env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
             - name: NodeName
               valueFrom:
                 fieldRef:

@@ -38,7 +38,7 @@ func (r *Plugin) apiDevices() *[]*api.DeviceInfo {
 			res = append(res, &api.DeviceInfo{
 				Index:   idx,
 				Id:      "DCU-" + fmt.Sprint(idx),
-				Count:   30,
+				Count:   100,
 				Devmem:  int32(val),
 				Devcore: 100,
 				Numa:    0,

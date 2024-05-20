@@ -55,6 +55,10 @@ spec:
             - {{ . }}
             {{- end }}
           env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
             - name: NodeName
               valueFrom:
                 fieldRef:

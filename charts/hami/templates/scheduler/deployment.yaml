@@ -71,6 +71,9 @@ spec:
             - --default-cores={{ .Values.scheduler.defaultCores }}
             - --iluvatar-memory={{ .Values.iluvatarResourceMem }}
             - --iluvatar-cores={{ .Values.iluvatarResourceCore }}
+            - --dcu-name={{ .Values.dcuResourceName }}
+            - --dcu-memory={{ .Values.dcuResourceMem }}
+            - --dcu-cores={{ .Values.dcuResourceCores }}
             {{- range .Values.scheduler.extender.extraArgs }}
             - {{ . }}
             {{- end }}

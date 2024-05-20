@@ -56,7 +56,7 @@ func (p *Plugin) Start() error {
 	}
 	p.pipeid = make([][]bool, 16)
 	for idx := range p.pipeid {
-		p.pipeid[idx] = make([]bool, 20)
+		p.pipeid[idx] = make([]bool, 200)
 		for id := range p.pipeid[idx] {
 			p.pipeid[idx][id] = false
 		}
@@ -89,13 +89,13 @@ func (p *Plugin) Start() error {
 		var memory int
 		var used int
 		if index%2 == 0 {
-			_, err := fmt.Sscanf(val, "DCU[%d] 		: vram Total Memory (B): %d\n", &idx, &memory)
+			_, err := fmt.Sscanf(val, "DCU[%d] 		: vram Total Memory (MiB): %d\n", &idx, &memory)
 			if err != nil {
 				panic(err)
 			}
-			p.totalmem[idx] = memory / 1024 / 1024
+			p.totalmem[idx] = memory
 		} else {
-			_, err := fmt.Sscanf(val, "DCU[%d] 		: vram Total Used Memory (B): %d\n", &idx, &used)
+			_, err := fmt.Sscanf(val, "DCU[%d] 		: vram Total Used Memory (MiB): %d\n", &idx, &used)
 			if err != nil {
 				panic(err)
 			}
@@ -104,7 +104,7 @@ func (p *Plugin) Start() error {
 		p.count++
 	}
 
-	cmd = exec.Command("hy-smi", "--showproduct")
+	cmd = exec.Command("hy-smi", "--showproductname")
 	out, err = cmd.CombinedOutput()
 	if err != nil {
 		log.Fatalf("cmd.Run() failed with %s\n", err)
@@ -116,7 +116,7 @@ func (p *Plugin) Start() error {
 		var idx int
 		var cardtype string
 		if index%2 == 0 {
-			_, err := fmt.Sscanf(val, "DCU[%d] 		: Card series:		%s\n", &idx, &cardtype)
+			_, err := fmt.Sscanf(val, "DCU[%d] 		: Card Series:		%s\n", &idx, &cardtype)
 			if err != nil {
 				panic(err)
 			}
@@ -144,7 +144,7 @@ func (p *Plugin) Start() error {
 	}
 	fmt.Println("collecting pcibus=", p.pcibusid)
 
-	cmd = exec.Command("hdmcli", "--show-device-info")
+	cmd = exec.Command("hy-virtual", "--show-device-info")
 	out, err = cmd.CombinedOutput()
 	if err != nil {
 		log.Fatalf("cmd.Run() failed with %s\n", err)
@@ -512,7 +512,7 @@ func (p *Plugin) Allocate(ctx context.Context, reqs *pluginapi.AllocateRequest) 
 			glog.Infof("Allocating device ID: %s", val.UUID)
 			fmt.Sscanf(val.UUID, "DCU-%d", &id)
 
-			devpath := fmt.Sprintf("/dev/dri/card%d", id)
+			devpath := fmt.Sprintf("/dev/dri/card%d", id+1)
 			dev = new(pluginapi.DeviceSpec)
 			dev.HostPath = devpath
 			dev.ContainerPath = devpath
@@ -526,6 +526,14 @@ func (p *Plugin) Allocate(ctx context.Context, reqs *pluginapi.AllocateRequest) 
 			dev.Permissions = "rw"
 			car.Devices = append(car.Devices, dev)
 		}
+
+		devpath := fmt.Sprintf("/dev/dri/card%d", 0)
+		dev = new(pluginapi.DeviceSpec)
+		dev.HostPath = devpath
+		dev.ContainerPath = devpath
+		dev.Permissions = "rw"
+		car.Devices = append(car.Devices, dev)
+
 		//Create vdev file
 		filename, err := p.createvdevFile(current, &currentCtr, devreq)
 		if err != nil {

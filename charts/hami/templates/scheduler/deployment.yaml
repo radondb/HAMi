@@ -81,6 +81,9 @@ spec:
             - --ascend-memory={{ .Values.ascendResourceMem }}
             - --node-scheduler-policy={{ .Values.scheduler.defaultSchedulerPolicy.nodeSchedulerPolicy }}
             - --gpu-scheduler-policy={{ .Values.scheduler.defaultSchedulerPolicy.gpuSchedulerPolicy }}
+            - --dcu-name={{ .Values.dcuResourceName }}
+            - --dcu-memory={{ .Values.dcuResourceMem }}
+            - --dcu-cores={{ .Values.dcuResourceCores }}
             {{- range .Values.scheduler.extender.extraArgs }}
             - {{ . }}
             {{- end }}

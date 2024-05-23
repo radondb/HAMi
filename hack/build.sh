@@ -23,7 +23,7 @@ export COMMIT_CODE
 export VERSION="${SHORT_VERSION}-${COMMIT_CODE}"
 export LATEST_VERSION="latest"
 export GOLANG_IMAGE="golang:1.21-bullseye"
-export NVIDIA_IMAGE="nvidia/cuda:12.2.0-devel-ubuntu20.04"
+export NVIDIA_IMAGE="nvidia/cuda:12.4.0-devel-ubuntu20.04"
 export DEST_DIR="/usr/local"
 
 IMAGE=${IMAGE-"projecthami/hami"}
@@ -34,9 +34,9 @@ function go_build() {
 }
 
 function docker_build() {
-    docker build --build-arg VERSION="${VERSION}" --build-arg GOLANG_IMAGE=${GOLANG_IMAGE} --build-arg NVIDIA_IMAGE=${NVIDIA_IMAGE} --build-arg DEST_DIR=${DEST_DIR} -t "${IMAGE}:${VERSION}" -f docker/Dockerfile .
-    docker tag "${IMAGE}:${VERSION}" "${IMAGE}:${SHORT_VERSION}"
-    docker tag "${IMAGE}:${VERSION}" "${IMAGE}:${LATEST_VERSION}"
+    docker build --no-cache --build-arg VERSION="${VERSION}" --build-arg GOLANG_IMAGE=${GOLANG_IMAGE} --build-arg NVIDIA_IMAGE=${NVIDIA_IMAGE} --build-arg DEST_DIR=${DEST_DIR} -t "${IMAGE}:${VERSION}" -f docker/Dockerfile .
+    #docker tag "${IMAGE}:${VERSION}" "${IMAGE}:${SHORT_VERSION}"
+    #docker tag "${IMAGE}:${VERSION}" "${IMAGE}:${LATEST_VERSION}"
 }
 
 function docker_push() {
@@ -47,4 +47,4 @@ function docker_push() {
 
 go_build
 docker_build
-docker_push
+#docker_push

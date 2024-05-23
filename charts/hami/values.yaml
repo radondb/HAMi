@@ -6,11 +6,11 @@ imagePullSecrets: [ ]
 version: "v2.3.11"
 
 #Nvidia GPU Parameters
-resourceName: "nvidia.com/gpu"
-resourceMem: "nvidia.com/gpumem"
-resourceMemPercentage: "nvidia.com/gpumem-percentage"
-resourceCores: "nvidia.com/gpucores"
-resourcePriority: "nvidia.com/priority"
+resourceName: "qingcloud.nvidia.com/vgpu"
+resourceMem: "qingcloud.nvidia.com/vgpumem"
+resourceMemPercentage: "qingcloud.nvidia.com/vgpumem-percentage"
+resourceCores: "qingcloud.nvidia.com/vgpucores"
+resourcePriority: "qingcloud.nvidia.com/vgpupriority"
 
 #MLU Parameters
 mluResourceName: "cambricon.com/vmlu"
@@ -18,9 +18,9 @@ mluResourceMem: "cambricon.com/mlu.smlu.vmemory"
 mluResourceCores: "cambricon.com/mlu.smlu.vcore"
 
 #Hygon DCU Parameters
-dcuResourceName: "hygon.com/dcunum"
-dcuResourceMem: "hygon.com/dcumem"
-dcuResourceCores: "hygon.com/dcucores"
+dcuResourceName: "qingcloud.hygon.com/dcunum"
+dcuResourceMem: "qingcloud.hygon.com/dcumem"
+dcuResourceCores: "qingcloud.hygon.com/dcucores"
 
 #Iluvatar GPU Parameters
 iluvatarResourceName: "iluvatar.ai/vgpu"
@@ -57,7 +57,7 @@ scheduler:
   kubeScheduler:
     # @param enabled indicate whether to run kube-scheduler container in the scheduler pod, it's true by default.
     enabled: true
-    imageTag: "v1.20.0"
+    imageTag: "v1.26.5"
     image: registry.cn-hangzhou.aliyuncs.com/google_containers/kube-scheduler
     imagePullPolicy: IfNotPresent
     extraNewArgs:
@@ -67,7 +67,7 @@ scheduler:
       - --policy-config-file=/config/config.json
       - -v=4
   extender:
-    image: "projecthami/hami"
+    image: "radondb/hami"
     imagePullPolicy: IfNotPresent
     extraArgs:
       - --debug
@@ -103,22 +103,23 @@ scheduler:
     annotations: {}
 
 devicePlugin:
-  image: "projecthami/hami"
+  image: "radondb/hami"
   
-  monitorimage: "projecthami/hami"
+  monitorimage: "radondb/hami"
   monitorctrPath: /usr/local/vgpu/containers
   imagePullPolicy: IfNotPresent
-  deviceSplitCount: 10
-  deviceMemoryScaling: 1
-  deviceCoreScaling: 1
+  deviceSplitCount: 100
+  deviceMemoryScaling: 0.8
+  deviceCoreScaling: 2
   runtimeClassName: ""
   migStrategy: "none"
   disablecorelimit: "false"
   extraArgs:
+    - --pass-device-specs=true
     - -v=false
   
-  hygonimage: "4pdosc/vdcu-device-plugin:v1.0"
-  hygondriver: "/root/dcu-driver/dtk-22.10.1-vdcu"
+  hygonimage: "radondb/hami:v2.3.11"
+  hygondriver: "/root/dtk-24.04"
   
   service:
     httpPort: 31992
@@ -128,10 +129,14 @@ devicePlugin:
 
   podAnnotations: {}
   nvidianodeSelector:
-    gpu: "on"
+    aicp.group/aipods_type: "vGPU"
   mlunodeSelector:
     mlu: "on"
   hygonnodeSelector:
-    dcu: "on"
-  tolerations: []
+    aicp.group/aipods_type: "vDCU"
+  tolerations:
+    - key: "aicp.group/worker"
+      operator: "Exists"
+    - key: "aicp.group/resource_group"
+      operator: "Exists"
 

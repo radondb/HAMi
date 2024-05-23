@@ -1,13 +1,13 @@
 apiVersion: v2
-name: hami
-version: 2.0.0
-kubeVersion: ">= 1.16.0"
+appVersion: 0.0.2
 description: Heterogeneous AI Computing Virtualization Middleware
 keywords:
-  - vgpu
-  - gpu
-type: application
+- vgpu
+- gpu
+kubeVersion: '>= 1.16.0'
 maintainers:
-  - name: limengxuan
-    email: limengxuan@4paradigm.com
-appVersion: 0.0.2
+- email: limengxuan@4paradigm.com
+  name: limengxuan
+name: hami
+type: application
+version: 2.3.11

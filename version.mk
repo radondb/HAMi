@@ -1,7 +1,7 @@
 GO=go
 GO111MODULE=on
 CMDS=scheduler vGPUmonitor
-DEVICES=nvidia
+DEVICES=nvidia hygon
 OUTPUT_DIR=bin
 TARGET_ARCH=amd64
 GOLANG_IMAGE=golang:1.21-bullseye

@@ -21,6 +21,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/Project-HAMi/HAMi/pkg/device-plugin/hygon/dcu"
@@ -40,7 +41,7 @@ type Lister struct {
 // GetResourceNamespace must return namespace (vendor ID) of implemented Lister. e.g. for
 // resources in format "color.example.com/<color>" that would be "color.example.com".
 func (l *Lister) GetResourceNamespace() string {
-	return "hygon.com"
+	return strings.Split(ResourceName, "/")[0]
 }
 
 // Discover notifies manager with a list of currently available resources in its namespace.
@@ -71,6 +72,7 @@ func (l *Lister) NewPlugin(resourceLastName string) dpm.PluginInterface {
 }
 
 var gitDescribe string
+var ResourceName string = "custom to define hygon.com/dcunum"
 
 func main() {
 	versions := [...]string{
@@ -87,6 +89,7 @@ func main() {
 	}
 	var pulse int
 	flag.IntVar(&pulse, "pulse", 0, "time between health check polling in seconds.  Set to 0 to disable.")
+	flag.StringVar(&ResourceName, "dcu-name", "hygon.com/dcunum", "the hygon resource name")
 	// this is also needed to enable glog usage in dpm
 	flag.Parse()
 
@@ -114,7 +117,7 @@ func main() {
 		// /sys/class/kfd only exists if ROCm kernel/driver is installed
 		var path = "/sys/class/kfd"
 		if _, err := os.Stat(path); err == nil {
-			l.ResUpdateChan <- []string{"dcunum"}
+			l.ResUpdateChan <- []string{strings.Split(ResourceName, "/")[1]}
 		}
 	}()
 	manager.Run()

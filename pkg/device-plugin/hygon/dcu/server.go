@@ -76,7 +76,7 @@ func (p *Plugin) Start() error {
 	}
 	p.pipeid = make([][]bool, 16)
 	for idx := range p.pipeid {
-		p.pipeid[idx] = make([]bool, 20)
+		p.pipeid[idx] = make([]bool, 200)
 		for id := range p.pipeid[idx] {
 			p.pipeid[idx][id] = false
 		}
@@ -480,10 +480,10 @@ func (p *Plugin) createvdevFile(current *corev1.Pod, ctr *corev1.Container, req 
 	if err != nil {
 		return "", err
 	}
-	klog.Infoln("s=",s)
+	klog.Infoln("s=", s)
 	err = os.WriteFile(cacheFileHostDirectory+"/vdev0.conf", []byte(s), os.ModePerm)
 	if err != nil {
-		return "",err
+		return "", err
 	}
 	return cacheFileHostDirectory, nil
 }
@@ -536,7 +536,7 @@ func (p *Plugin) Allocate(ctx context.Context, reqs *kubeletdevicepluginv1beta1.
 			klog.Infof("Allocating device ID: %s", val.UUID)
 			fmt.Sscanf(val.UUID, "DCU-%d", &id)
 
-			devpath := fmt.Sprintf("/dev/dri/card%d", id)
+			devpath := fmt.Sprintf("/dev/dri/card%d", id+1)
 			dev = new(kubeletdevicepluginv1beta1.DeviceSpec)
 			dev.HostPath = devpath
 			dev.ContainerPath = devpath
@@ -550,6 +550,13 @@ func (p *Plugin) Allocate(ctx context.Context, reqs *kubeletdevicepluginv1beta1.
 			dev.Permissions = "rw"
 			car.Devices = append(car.Devices, dev)
 		}
+
+		devpath := fmt.Sprintf("/dev/dri/card%d", 0)
+		dev = new(kubeletdevicepluginv1beta1.DeviceSpec)
+		dev.HostPath = devpath
+		dev.ContainerPath = devpath
+		dev.Permissions = "rw"
+		car.Devices = append(car.Devices, dev)
 		//Create vdev file
 
 		filename, err := p.createvdevFile(current, &currentCtr, devreq)

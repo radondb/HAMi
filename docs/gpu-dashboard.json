@@ -13,7 +13,7 @@
       }
     ]
   },
-  "description": "This dashboard is gpu metrics dashboard base on NVIDIA DCGM Exporter and HAMi/k8s-vgpu-scheduler",
+  "description": "This dashboard is gpu metrics dashboard base on NVIDIA DCGM Exporter and k8s-vgpu-scheduler",
   "editable": true,
   "gnetId": 12239,
   "graphTooltip": 0,
@@ -22,7 +22,7 @@
   "links": [],
   "panels": [
     {
-      "datasource": "ALL",
+      "datasource": "Prometheus-智算",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -88,7 +88,7 @@
     },
     {
       "cacheTimeout": null,
-      "datasource": "ALL",
+      "datasource": "Prometheus-智算",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -158,7 +158,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "ALL",
+      "datasource": "Prometheus-智算",
       "fieldConfig": {
         "defaults": {
           "links": []
@@ -261,7 +261,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "ALL",
+      "datasource": "Prometheus-智算",
       "fieldConfig": {
         "defaults": {
           "links": []
@@ -366,7 +366,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "ALL",
+      "datasource": "Prometheus-智算",
       "fieldConfig": {
         "defaults": {
           "links": []
@@ -465,7 +465,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "ALL",
+      "datasource": "Prometheus-智算",
       "fieldConfig": {
         "defaults": {
           "links": []
@@ -565,7 +565,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "ALL",
+      "datasource": "Prometheus-智算",
       "fieldConfig": {
         "defaults": {
           "links": []
@@ -665,7 +665,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "ALL",
+      "datasource": "Prometheus-智算",
       "fieldConfig": {
         "defaults": {
           "links": []
@@ -721,7 +721,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "HAMi-pod显存使用量（byte）",
+      "title": "pod显存使用量（byte）",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -763,7 +763,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "ALL",
+      "datasource": "Prometheus-智算",
       "fieldConfig": {
         "defaults": {
           "links": []
@@ -819,7 +819,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "HAMi-节点GPU显存使用量",
+      "title": "节点GPU显存使用量",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -861,7 +861,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "ALL",
+      "datasource": "Prometheus-智算",
       "fieldConfig": {
         "defaults": {
           "links": []
@@ -917,7 +917,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "HAMi-节点GPU算力使用率",
+      "title": "节点GPU算力使用率",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -968,7 +968,7 @@
         "current": {
           "selected": false
         },
-        "datasource": "ALL",
+        "datasource": "Prometheus-智算",
         "definition": "label_values({__name__=~\"DCGM_FI_DEV_FB_FREE|vGPU_device_memory_limit_in_bytes\"}, node_name)",
         "description": null,
         "error": null,
@@ -1003,7 +1003,7 @@
             "$__all"
           ]
         },
-        "datasource": "ALL",
+        "datasource": "Prometheus-智算",
         "definition": "label_values(DCGM_FI_DEV_FB_FREE{node_name=\"$node_name\"},gpu)",
         "description": null,
         "error": null,

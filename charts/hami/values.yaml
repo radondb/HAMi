@@ -125,7 +125,7 @@ devicePlugin:
   mlunodeSelector:
     mlu: "on"
   hygonnodeSelector:
-    dcu: "on"
+    aicp.group/aipods_type: "vDCU"
   tolerations:
     - key: "aicp.group/worker"
       operator: "Exists"

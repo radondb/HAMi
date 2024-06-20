@@ -30,10 +30,10 @@ proto:
 build: $(CMDS) $(DEVICES)
 
 $(CMDS):
-	$(GO) build -ldflags '-s -w -X github.com/Project-HAMi/HAMi/pkg/version.version=$(VERSION)' -o ${OUTPUT_DIR}/$@ ./cmd/$@
+	$(GO) build -buildvcs=false -ldflags '-s -w -X github.com/Project-HAMi/HAMi/pkg/version.version=$(VERSION)' -o ${OUTPUT_DIR}/$@ ./cmd/$@
 
 $(DEVICES):
-	$(GO) build -ldflags '-s -w -X github.com/Project-HAMi/HAMi/pkg/version.version=$(VERSION)' -o ${OUTPUT_DIR}/$@-device-plugin ./cmd/device-plugin/$@
+	$(GO) build -buildvcs=false -ldflags '-s -w -X github.com/Project-HAMi/HAMi/pkg/version.version=$(VERSION)' -o ${OUTPUT_DIR}/$@-device-plugin ./cmd/device-plugin/$@
 
 clean:
 	$(GO) clean -r -x ./cmd/...

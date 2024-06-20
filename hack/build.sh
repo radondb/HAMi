@@ -15,36 +15,62 @@
 # limitations under the License.
 #
 set -e
-[[ -z ${SHORT_VERSION} ]] && SHORT_VERSION=$(git rev-parse --abbrev-ref HEAD)
-[[ -z ${COMMIT_CODE} ]] && COMMIT_CODE=$(git describe --abbrev=100 --always)
 
-export SHORT_VERSION
-export COMMIT_CODE
-export VERSION="${SHORT_VERSION}-${COMMIT_CODE}"
-export LATEST_VERSION="latest"
+export VERSION="v2.3.11"
 export GOLANG_IMAGE="golang:1.21-bullseye"
 export NVIDIA_IMAGE="nvidia/cuda:12.4.0-devel-ubuntu20.04"
 export DEST_DIR="/usr/local"
 
-IMAGE=${IMAGE-"projecthami/hami"}
+IMAGE=${IMAGE-"aicphub/hami"}
+platform="all" #arm64,amd64,all
 
 function go_build() {
   [[ -z "$J" ]] && J=$(nproc | awk '{print int(($0 + 1)/ 2)}')
   make -j$J
 }
 
-function docker_build() {
-    docker build --no-cache --build-arg VERSION="${VERSION}" --build-arg GOLANG_IMAGE=${GOLANG_IMAGE} --build-arg NVIDIA_IMAGE=${NVIDIA_IMAGE} --build-arg DEST_DIR=${DEST_DIR} -t "${IMAGE}:${VERSION}" -f docker/Dockerfile .
-    #docker tag "${IMAGE}:${VERSION}" "${IMAGE}:${SHORT_VERSION}"
-    #docker tag "${IMAGE}:${VERSION}" "${IMAGE}:${LATEST_VERSION}"
+
+function pre_build_image()
+{
+	image=$1
+
+	# check repository image
+	repositoryImageExists=$(curl --silent -f --head -lL https://hub.docker.com/v2/repositories/$image/tags/$VERSION/ > /dev/null && echo "success" || echo "failed")
+
+	# check repository image
+	if [ "$repositoryImageExists" == "success" ]; then
+		echo "docker image $image:$VERSION exists on dockerhub, skiping ... "
+		exit 255
+	fi
+
+	echo "pre_build_image success!"
+	return 0
 }
 
-function docker_push() {
-    #docker push "${IMAGE}:${VERSION}"
-    docker push "${IMAGE}:${SHORT_VERSION}"
-    docker push "${IMAGE}:${LATEST_VERSION}"
+function build_image() {
+	image=$1
+	platform=$2
+
+	build_cmd="docker buildx build --no-cache "
+	if [ $platform == "all" ]; then
+		builder_exists=$(docker buildx ls | awk '{if ($1=="multi-platform") print $1}')
+		if [ "$builder_exists" ]; then
+			docker buildx rm multi-platform
+		fi
+		# create a new builder instance
+		docker buildx create --use --bootstrap --name multi-platform --platform=linux/amd64,linux/arm64 > /dev/null
+
+		build_cmd="$build_cmd --push --platform linux/amd64,linux/arm64"
+	else
+		build_cmd="$build_cmd -o type=docker --platform linux/${platform}"
+	fi
+
+	cmd="$build_cmd --build-arg VERSION=${VERSION} --build-arg GOLANG_IMAGE=${GOLANG_IMAGE} --build-arg NVIDIA_IMAGE=${NVIDIA_IMAGE} --build-arg DEST_DIR=${DEST_DIR} -t ${IMAGE}:${VERSION} -f docker/Dockerfile ."
+	echo $cmd
+	$cmd
 }
 
 go_build
-docker_build
-#docker_push
+
+pre_build_image "$IMAGE"
+build_image "$IMAGE" "$platform"

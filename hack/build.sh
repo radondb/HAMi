@@ -22,7 +22,8 @@ export NVIDIA_IMAGE="nvidia/cuda:12.4.0-devel-ubuntu20.04"
 export DEST_DIR="/usr/local"
 
 IMAGE=${IMAGE-"aicphub/hami"}
-platform="all" #arm64,amd64,all
+platform="amd64" #arm64,amd64,all
+buildx="false" #true/false
 
 function go_build() {
   [[ -z "$J" ]] && J=$(nproc | awk '{print int(($0 + 1)/ 2)}')
@@ -47,7 +48,7 @@ function pre_build_image()
 	return 0
 }
 
-function build_image() {
+function buildx_image() {
 	image=$1
 	platform=$2
 
@@ -65,7 +66,16 @@ function build_image() {
 		build_cmd="$build_cmd -o type=docker --platform linux/${platform}"
 	fi
 
-	cmd="$build_cmd --build-arg VERSION=${VERSION} --build-arg GOLANG_IMAGE=${GOLANG_IMAGE} --build-arg NVIDIA_IMAGE=${NVIDIA_IMAGE} --build-arg DEST_DIR=${DEST_DIR} -t ${IMAGE}:${VERSION} -f docker/Dockerfile ."
+	cmd="$build_cmd --build-arg VERSION=${VERSION} --build-arg GOLANG_IMAGE=${GOLANG_IMAGE} --build-arg NVIDIA_IMAGE=${NVIDIA_IMAGE} --build-arg DEST_DIR=${DEST_DIR} -t ${image}:${VERSION} -f docker/Dockerfile ."
+	echo $cmd
+	$cmd
+}
+
+function build_image() {
+	image=$1
+	platform=$2
+
+	cmd="docker build --no-cache --platform linux/${platform} --build-arg VERSION="${VERSION}" --build-arg GOLANG_IMAGE=${GOLANG_IMAGE} --build-arg NVIDIA_IMAGE=${NVIDIA_IMAGE} --build-arg DEST_DIR=${DEST_DIR} -t "${image}:${VERSION}" -f docker/Dockerfile ."
 	echo $cmd
 	$cmd
 }
@@ -73,4 +83,8 @@ function build_image() {
 go_build
 
 pre_build_image "$IMAGE"
-build_image "$IMAGE" "$platform"
+if [ "$buildx" == "true" ]; then
+	buildx_image "$IMAGE" "$platform"
+else
+	build_image "$IMAGE" "$platform"
+fi
